@@ -46,10 +46,7 @@ const createProduct = asyncHandler(async (req, res) => {
 		title,
 		description,
 		price,
-		image: {
-			cloud_name: process.env.CLOUDINARY_NAME,
-			imageID: uploadedImage.public_id,
-		},
+		image: uploadedImage.url,
 		category,
 		user: req.user._id,
 		name: user.name,
