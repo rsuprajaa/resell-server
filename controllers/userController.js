@@ -1,9 +1,9 @@
-import asyncHandler from 'express-async-handler'
-import jwt from 'jsonwebtoken'
-import Twilio from 'twilio'
-import Bookmark from '../models/bookmarkModel.js'
-import Product from '../models/productModel.js'
-import User from '../models/userModel.js'
+import asyncHandler from "express-async-handler"
+import jwt from "jsonwebtoken"
+import Twilio from "twilio"
+import Bookmark from "../models/bookmarkModel.js"
+import Product from "../models/productModel.js"
+import User from "../models/userModel.js"
 
 const client = new Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
 
@@ -16,11 +16,11 @@ export const authUser = asyncHandler(async (req, res) => {
 			name: user.name,
 			email: user.email,
 			contact: user.contact,
-			token: jwt.sign({ id: user._id }, process.env.JWT_SECRETKEY, { expiresIn: '30d' }),
+			token: jwt.sign({ id: user._id }, process.env.JWT_SECRETKEY, { expiresIn: "30d" }),
 		})
 	} else {
 		res.status(401)
-		throw new Error('Invalid email or password')
+		throw new Error("Invalid email or password")
 	}
 })
 
@@ -29,7 +29,7 @@ export const registerUser = asyncHandler(async (req, res) => {
 	const userExists = await User.findOne({ email })
 	if (userExists) {
 		res.status(400)
-		throw new Error('User already exists')
+		throw new Error("User already exists")
 	}
 	const user = await User.create({
 		name,
@@ -43,11 +43,11 @@ export const registerUser = asyncHandler(async (req, res) => {
 			name: user.name,
 			email: user.email,
 			contact: user.contact,
-			token: jwt.sign({ id: user._id }, process.env.JWT_SECRETKEY, { expiresIn: '30d' }),
+			token: jwt.sign({ id: user._id }, process.env.JWT_SECRETKEY, { expiresIn: "30d" }),
 		})
 	} else {
 		res.status(404)
-		throw new Error('User not found')
+		throw new Error("User not found")
 	}
 })
 
@@ -55,18 +55,18 @@ export const getToken = asyncHandler(async (req, res) => {
 	const user = await User.findById(req.user._id)
 	if (!user) {
 		res.status(401)
-		throw new Error('User not authorized')
+		throw new Error("User not authorized")
 	}
 	const { contact } = user
 	client.verify
 		.services(process.env.TWILIO_SERVICE_ID)
 		.verifications.create({
 			to: `+${contact}`,
-			channel: 'sms',
+			channel: "sms",
 		})
 		.then((data) => {
 			res.status(200).send({
-				message: 'Verification is sent!',
+				message: "Verification is sent!",
 				contact,
 				data,
 			})
@@ -77,7 +77,7 @@ export const verify = asyncHandler(async (req, res) => {
 	const user = await User.findById(req.user._id)
 	if (!user) {
 		res.status(401)
-		throw new Error('User not authorized')
+		throw new Error("User not authorized")
 	}
 	const { contact } = user
 	const { code } = req.body
@@ -88,24 +88,24 @@ export const verify = asyncHandler(async (req, res) => {
 				to: `+${contact}`,
 				code,
 			})
-		if (data.status === 'approved') {
+		if (data.status === "approved") {
 			user.verified = true
 			await user.save()
 			res.status(200).send({
-				message: 'User is Verified!!',
+				message: "User is Verified!!",
 				data,
 			})
 		}
 	} else {
 		res.status(400).send({
-			message: 'Wrong phone number or code',
+			message: "Wrong phone number or code",
 			phonenumber: contact,
 		})
 	}
 })
 
 export const getUserProfile = asyncHandler(async (req, res) => {
-	const user = await User.findById(req.user._id)
+	const user = await User.findById(req.params.id)
 	if (user) {
 		res.json({
 			_id: user._id,
@@ -116,7 +116,7 @@ export const getUserProfile = asyncHandler(async (req, res) => {
 		})
 	} else {
 		res.status(404)
-		throw new Error('User not found')
+		throw new Error("User not found")
 	}
 })
 
@@ -137,11 +137,11 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
 			email: updatedUser.email,
 			stream: updatedUser.stream,
 			hostel: updatedUser.hostel,
-			token: jwt.sign({ id: user._id }, process.env.JWT_SECRETKEY, { expiresIn: '30d' }),
+			token: jwt.sign({ id: user._id }, process.env.JWT_SECRETKEY, { expiresIn: "30d" }),
 		})
 	} else {
 		res.status(404)
-		throw new Error('User not found')
+		throw new Error("User not found")
 	}
 })
 
@@ -151,9 +151,9 @@ export const deleteUser = asyncHandler(async (req, res) => {
 		await Product.deleteMany({ user })
 		await Bookmark.deleteMany({ user })
 		await user.remove()
-		res.json({ message: 'User deleted' })
+		res.json({ message: "User deleted" })
 	} else {
 		res.status(404)
-		throw new Error('User not found')
+		throw new Error("User not found")
 	}
 })
