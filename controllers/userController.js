@@ -113,6 +113,7 @@ export const getUserProfile = asyncHandler(async (req, res) => {
 			email: user.email,
 			stream: user.stream,
 			hostel: user.hostel,
+			verified: user.verified,
 		})
 	} else {
 		res.status(404)
